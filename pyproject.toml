@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "inteligencja-proj1"
+version = "0.1.0"
+description = ""
+authors = ["Mateusz Kurowski <m.kurowski.023@studms.ug.edu.pl>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^2.2.2"
+scikit-learn = "^1.4.2"
+skorch = "^0.15.0"
+matplotlib = "^3.8.4"
+rich = "^13.7.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
