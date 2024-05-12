@@ -49,15 +49,16 @@ columns_to_drop = [
 ]
 
 try:
-    df = pd.read_csv("data/vehicles.csv")
+    df = pd.read_csv("../data/vehicles.csv")
     print("old len: ", len(df))
     # preprocessing
     new_df = drop_columns(df, columns_to_drop)
     new_df = drop_if(new_df)
     new_df = fill_na(new_df)
     print("new len: ", len(new_df))
-    new_df.to_csv("data/preproc-vehicles.csv")
-    new_df.head(100).to_csv("data/preproc-vehicles100.csv")
+    new_df.to_csv("../data/preproc-vehicles.csv")
+    new_df.head(100).to_csv("../data/preproc-vehicles100.csv")
     print("Successfully saved preprocessed data")
-except:
+except Exception as exc:
     print("Preprocessing failed")
+    print(exc)

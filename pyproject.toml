@@ -12,6 +12,7 @@ scikit-learn = "^1.4.2"
 skorch = "^0.15.0"
 matplotlib = "^3.8.4"
 rich = "^13.7.1"
+seaborn = "^0.13.2"
 
 
 [build-system]
