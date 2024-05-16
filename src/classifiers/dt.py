@@ -1,37 +1,81 @@
-from src.utils.preprocess import load_normalized, load_preprocessed
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
-from src.utils.check_prediction import custom_accuracy_score
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import confusion_matrix, accuracy_score
+from src.utils.preprocess import load_normalized
+from rich import print
 import matplotlib.pyplot as plt
 from seaborn import heatmap
-from sklearn.metrics import confusion_matrix
+from sklearn.preprocessing import LabelEncoder
 
-sample = 0.5
-data_X, data_y = load_normalized(part=sample, return_X_y=True)
-# data_X, data_y = load_preprocessed(part=1, return_X_y=True, encode_X=True)
 
-train_X, test_X, train_y, test_y = train_test_split(
-    data_X, data_y, shuffle=True, random_state=288490, test_size=0.2
+data = load_normalized()
+
+data_X, data_y = data.drop("price", axis=1), data["price"]
+
+label_encoder = LabelEncoder()
+data_y = label_encoder.fit_transform(data_y)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    data_X, data_y, test_size=0.2, random_state=288490, shuffle=True
 )
-truthy_test_y = [True for i in test_y]
-cm_labels = [True, False]
-dtc = DecisionTreeClassifier()
-classifier_name = "DTC"
-dtc.fit(train_X, train_y)
-y_pred = dtc.predict(test_X)
-accuracy, real_predictions = custom_accuracy_score(test_y, y_pred)
-print(f"Dokładność klasyfikacji {classifier_name}:", accuracy)
-cm = confusion_matrix(truthy_test_y, real_predictions, labels=cm_labels)
-cm_1x2 = cm.sum(axis=0)
-plt.figure(figsize=(8, 4))
-heatmap(
-    cm_1x2.reshape(1, -1),
-    annot=True,
-    fmt="g",
-    cmap="Blues",
-    xticklabels=["True", "False"],
-)
-plt.xlabel("Predicted Label")
-plt.ylabel("True Label")
-plt.title(f"Confusion Matrix {classifier_name} sample ={sample*100}%")
-plt.savefig(f"./plots/DT/{classifier_name}-CM.png")
+
+trees = [
+    {
+        "criterion": "gini",
+        "splitter": "best",
+        "max_depth": None,
+    },
+    {
+        "criterion": "gini",
+        "splitter": "best",
+        "max_depth": None,
+    },
+    {
+        "criterion": "entropy",
+        "splitter": "best",
+        "max_depth": None,
+    },
+]
+
+
+if __name__ == "__main__":
+    for i, tree_params in enumerate(trees):
+        criterion = tree_params["criterion"]
+        splitter = tree_params["splitter"]
+        max_depth = tree_params["max_depth"]
+
+        dt_classifier = DecisionTreeClassifier(
+            criterion=criterion, splitter=splitter, max_depth=max_depth
+        )
+        dt_classifier.fit(X_train, y_train)
+        y_pred = dt_classifier.predict(X_test)
+
+        accuracy = accuracy_score(y_test, y_pred)
+        rounded_accuracy = round(accuracy, 3)
+        print(f"Dokładność klasyfikacji DT no. {i} :", rounded_accuracy)
+
+        tree_params["accuracy"] = accuracy
+
+        cm = confusion_matrix(y_test, y_pred)
+
+        plt.figure(figsize=(14, 12))
+        heatmap(
+            cm,
+            annot=True,
+            fmt="g",
+            cmap="Blues",
+            xticklabels=label_encoder.classes_,
+            yticklabels=label_encoder.classes_,
+        )
+        plt.xticks(rotation=45)
+        plt.xlabel("Predicted Label")
+        plt.ylabel("True Label")
+        plt.title(
+            f"Decision Tree no. {i} \n criterion = {tree_params['criterion']} splitter = {tree_params['splitter']} \n max_depth = {tree_params['max_depth']} \n Accuracy {round(rounded_accuracy*1000)/10}%"
+        )
+        plt.savefig(f"./plots/DT/DT-{i}-CM.png")
+        plt.close()  # Close the current figure
+        if max_depth is not None:
+            fig = plt.figure(figsize=(25, 20))
+            tree_plot = plot_tree(dt_classifier, filled=True)
+            fig.savefig(f"./plots/DT/decistion_tree-{i}.svg")

@@ -1,6 +1,7 @@
-from src.utils.load_data import load_preprocessed, load_original
+from src.utils.preprocess import load_preprocessed, load_original
 import numpy as np
 from pandas import DataFrame
+from rich import print
 
 
 def calc_stats(df: DataFrame):
@@ -20,13 +21,15 @@ def calc_stats(df: DataFrame):
     print("Kwartyle (25%, 50%, 75%):", quantiles)
 
 
-original_df = load_original()["price"]
-preprocessed_df = load_preprocessed()["price"]
+original_df = load_original()["odometer"]
+preprocessed_df = load_preprocessed()["odometer"]
 
 print("Original data stats:")
-original_stats = calc_stats(original_df)
+calc_stats(original_df)
 
 print("-----------")
 
 print("Preprocessed data stats:")
-preprocessed_stats = calc_stats(preprocessed_df)
+calc_stats(preprocessed_df)
+
+# min_max(preprocessed_df)
