@@ -12,7 +12,7 @@ import numpy as np
 RANDOM_STATE = 288490
 
 
-param_grid = {
+param_grid = {  # trwało to 3h i nie zakończyło się.
     "solver": ["adam", "sgd"],
     "learning_rate_init": [0.01],
     "hidden_layer_sizes": [
